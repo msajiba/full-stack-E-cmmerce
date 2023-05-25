@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+const { ObjectId } = mongoose.Schema;
 const productSchema = new mongoose.Schema(
   {
     title: {
@@ -62,7 +62,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-const Category =
+const Product =
   mongoose.models.Product || mongoose.model("Product", productSchema);
 
-export default Category;
+export default Product;

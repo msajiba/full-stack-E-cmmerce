@@ -7,28 +7,24 @@ import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { RadioButton } from "primereact/radiobutton";
-import { Rating } from "primereact/rating";
 import { Toast } from "primereact/toast";
 import { Toolbar } from "primereact/toolbar";
 import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import { ProductService } from "../../../demo/service/ProductService";
 import DashboardContainer from "../../../layout/DashboardContainer";
+import db from "../../../config/db";
+import Category from "../../../server/models/Category";
+import { Avatar } from "primereact/avatar";
 
-const Categories = () => {
+const Categories = ({ categories }) => {
+ 
   let emptyProduct = {
     id: null,
     name: "",
-    image: null,
-    description: "",
-    category: null,
-    price: 0,
-    quantity: 0,
-    rating: 0,
-    inventoryStatus: "INSTOCK",
+    image: null
   };
 
-  const [products, setProducts] = useState(null);
+  const [products, setProducts] = useState(categories);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
@@ -39,16 +35,10 @@ const Categories = () => {
   const toast = useRef(null);
   const dt = useRef(null);
 
-  useEffect(() => {
-    ProductService.getProducts().then((data) => setProducts(data));
-  }, []);
+  // useEffect(() => {
+  //   ProductService.getProducts().then((data) => setProducts(data));
+  // }, []);
 
-  const formatCurrency = (value) => {
-    return value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "BDT",
-    });
-  };
 
   const openNew = () => {
     setProduct(emptyProduct);
@@ -208,15 +198,17 @@ const Categories = () => {
     );
   };
 
+  // TABLE_ID=================>
   const codeBodyTemplate = (rowData) => {
     return (
       <>
         <span className="p-column-title">Code</span>
-        {rowData.code}
+        {rowData._id}
       </>
     );
   };
 
+  // TABLE_NAME==================>
   const nameBodyTemplate = (rowData) => {
     return (
       <>
@@ -226,60 +218,17 @@ const Categories = () => {
     );
   };
 
+  // TABLE_IMAGE==================>
   const imageBodyTemplate = (rowData) => {
     return (
       <>
         <span className="p-column-title">Image</span>
-        <img
-          src={`/demo/images/product/${rowData.image}`}
-          alt={rowData.image}
-          className="shadow-2"
-          width="100"
-        />
+        <Avatar image={`${rowData.image}`} size="xlarge" shape="circle" />
       </>
     );
   };
 
-  const priceBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Price</span>
-        {formatCurrency(rowData.price)}
-      </>
-    );
-  };
-
-  const categoryBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Category</span>
-        {rowData.category}
-      </>
-    );
-  };
-
-  const ratingBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Reviews</span>
-        <Rating value={rowData.rating} readOnly cancel={false} />
-      </>
-    );
-  };
-
-  const statusBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Status</span>
-        <span
-          className={`product-badge status-${rowData.inventoryStatus.toLowerCase()}`}
-        >
-          {rowData.inventoryStatus}
-        </span>
-      </>
-    );
-  };
-
+  // TABLE_IMAGE==================>
   const actionBodyTemplate = (rowData) => {
     return (
       <>
@@ -300,6 +249,7 @@ const Categories = () => {
     );
   };
 
+  // TABLE_HEADER==================>
   const header = (
     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
       <h5 className="m-0">Manage Categories</h5>
@@ -320,6 +270,7 @@ const Categories = () => {
       <Button label="Save" icon="pi pi-check" text onClick={saveProduct} />
     </>
   );
+
   const deleteProductDialogFooter = (
     <>
       <Button
@@ -373,59 +324,38 @@ const Categories = () => {
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
               globalFilter={globalFilter}
-              emptyMessage="No products found."
+              emptyMessage="No Category found."
               header={header}
               responsiveLayout="scroll"
             >
               <Column
                 selectionMode="multiple"
                 headerStyle={{ width: "4rem" }}
-              ></Column>
+              />
+
               <Column
                 field="code"
-                header="Code"
+                header="ID"
                 sortable
                 body={codeBodyTemplate}
-                headerStyle={{ minWidth: "15rem" }}
-              ></Column>
+                headerStyle={{ minWidth: "5rem" }}
+              />
+
+              <Column header="Image" body={imageBodyTemplate} />
+
               <Column
                 field="name"
                 header="Name"
                 sortable
                 body={nameBodyTemplate}
                 headerStyle={{ minWidth: "15rem" }}
-              ></Column>
-              <Column header="Image" body={imageBodyTemplate}></Column>
+              />
+
               <Column
-                field="price"
-                header="Price"
-                body={priceBodyTemplate}
-                sortable
-              ></Column>
-              <Column
-                field="category"
-                header="Category"
-                sortable
-                body={categoryBodyTemplate}
-                headerStyle={{ minWidth: "10rem" }}
-              ></Column>
-              <Column
-                field="rating"
-                header="Reviews"
-                body={ratingBodyTemplate}
-                sortable
-              ></Column>
-              <Column
-                field="inventoryStatus"
-                header="Status"
-                body={statusBodyTemplate}
-                sortable
-                headerStyle={{ minWidth: "10rem" }}
-              ></Column>
-              <Column
+                header="Action"
                 body={actionBodyTemplate}
                 headerStyle={{ minWidth: "10rem" }}
-              ></Column>
+              />
             </DataTable>
 
             <Dialog
@@ -439,7 +369,7 @@ const Categories = () => {
             >
               {product.image && (
                 <img
-                  src={`/demo/images/product/${product.image}`}
+                  src={`${product.image}`}
                   alt={product.image}
                   width="150"
                   className="mt-0 mx-auto mb-5 block shadow-2"
@@ -592,3 +522,14 @@ const Categories = () => {
 };
 
 export default Categories;
+
+export async function getServerSideProps() {
+  db.connectDb();
+  let categories = await Category.find().sort({ createdAt: -1 }).lean();
+  return {
+    props: {
+      categories: JSON.parse(JSON.stringify(categories)),
+      //country: { name: data.name, flag: data.flag.emojitwo },
+    },
+  };
+}

@@ -1,25 +1,40 @@
 import db from "../../../../config/db";
 import nc from "next-connect";
+import SubCategory from "../../../../server/models/SubCategory";
 import Category from "../../../../server/models/Category";
 
 const handler = nc();
 
 handler.post(async (req, res) => {
   try {
-    const { name, image } = req.body;
+    const { name, category } = req.body;
+
     db.connectDb();
-    const test = await Category.findOne({ name });
+    const test = await SubCategory.findOne({ name });
     if (test) {
       return res
         .status(400)
-        .json({ message: "Category already exist, Try a different name" });
+        .json({ message: "SubCategory already exist, Try a different name" });
     }
-    await new Category({ name, image }).save();
+
+    const sbCtg = await new SubCategory(req.body).save();
+
+    await Category.updateOne(
+      {
+        _id: category,
+      },
+      {
+        $set: {
+          subCategories: sbCtg._id,
+        },
+      }
+    );
 
     db.disconnectDb();
+
     res.json({
-      message: `Category ${name} has been created successfully.`,
-      categories: await Category.find({}).sort({ updatedAt: -1 }),
+      message: `SubCategory ${name} has been created successfully.`,
+      categories: await SubCategory.find({}).sort({ updatedAt: -1 }),
     });
   } catch (error) {
     db.disconnectDb();
@@ -29,8 +44,8 @@ handler.post(async (req, res) => {
 
 handler.get(async (req, res) => {
   try {
-    const categories = await Category.find();
-    return res.json(categories);
+    const subCategories = await SubCategory.find().populate("category");
+    return res.json(subCategories);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -43,16 +58,16 @@ handler.delete(async (req, res) => {
     const exist = await Category.findOne({ _id: id });
     if (exist) {
       db.connectDb();
-      await Category.findByIdAndRemove(id);
+      await SubCategory.findByIdAndRemove(id);
       db.disconnectDb();
       return res.json({
-        message: "Category has been deleted successfully",
-        categories: await Category.find({}).sort({ updatedAt: -1 }),
+        message: "SubCategory has been deleted successfully",
+        subCategory: await SubCategory.find({}).sort({ updatedAt: -1 }),
       });
     } else {
       db.disconnectDb();
       return res.json({
-        message: "Category Not Exist Please try to delete exist category",
+        message: "SubCategory Not Exist Please try to delete exist subcategory",
       });
     }
   } catch (error) {
@@ -63,20 +78,20 @@ handler.delete(async (req, res) => {
 handler.put(async (req, res) => {
   try {
     const { id, name } = req.body;
-    db.connectDb();
 
     const exist = await Category.findOne({ _id: id });
     if (exist) {
-      await Category.findByIdAndUpdate(id, { name });
+      db.connectDb();
+      await SubCategory.findByIdAndUpdate(id, { name });
       db.disconnectDb();
       return res.json({
-        message: "Category has been updated successfully",
-        categories: await Category.find({}).sort({ createdAt: -1 }),
+        message: "SubCategory has been updated successfully",
+        subCategory: await SubCategory.find({}).sort({ createdAt: -1 }),
       });
     } else {
       db.disconnectDb();
       return res.json({
-        message: "Category Not Exist Please try to update exist category",
+        message: "SubCategory Not Exist Please try to update exist subcategory",
       });
     }
   } catch (error) {

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+const { ObjectId } = mongoose.Schema;
 
 const categorySchema = new mongoose.Schema(
   {
@@ -12,6 +13,13 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    subCategories: [
+      {
+        type: ObjectId,
+        ref: "SubCategory",
+      },
+    ],
   },
   {
     timestamps: true,
