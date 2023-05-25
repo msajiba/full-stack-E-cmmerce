@@ -17,7 +17,8 @@ import Category from "../../../server/models/Category";
 import { Avatar } from "primereact/avatar";
 
 const Categories = ({ categories }) => {
- 
+
+
   let emptyProduct = {
     id: null,
     name: "",
@@ -525,7 +526,7 @@ export default Categories;
 
 export async function getServerSideProps() {
   db.connectDb();
-  let categories = await Category.find().sort({ createdAt: -1 }).lean();
+  let categories = await Category.find().populate('subCategories').sort({ createdAt: -1 }).lean();
   return {
     props: {
       categories: JSON.parse(JSON.stringify(categories)),

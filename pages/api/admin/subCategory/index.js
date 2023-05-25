@@ -24,7 +24,7 @@ handler.post(async (req, res) => {
         _id: category,
       },
       {
-        $set: {
+        $push: {
           subCategories: sbCtg._id,
         },
       }
