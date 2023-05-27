@@ -16,7 +16,7 @@ import db from "../../../config/db";
 import Category from "../../../server/models/Category";
 import { Avatar } from "primereact/avatar";
 
-const Categories = ({ categories }) => {
+const Categories = ({ ctg }) => {
 
 
   let emptyProduct = {
@@ -25,7 +25,7 @@ const Categories = ({ categories }) => {
     image: null
   };
 
-  const [products, setProducts] = useState(categories);
+  const [products, setProducts] = useState();
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
@@ -36,9 +36,9 @@ const Categories = ({ categories }) => {
   const toast = useRef(null);
   const dt = useRef(null);
 
-  // useEffect(() => {
-  //   ProductService.getProducts().then((data) => setProducts(data));
-  // }, []);
+  useEffect(() => {
+    setProducts(ctg);
+  }, [ctg]);
 
 
   const openNew = () => {
@@ -147,7 +147,7 @@ const Categories = ({ categories }) => {
   const confirmDeleteSelected = () => {
     setDeleteProductsDialog(true);
   };
-
+ 
   const deleteSelectedProducts = () => {
     let _products = products.filter((val) => !selectedProducts.includes(val));
     setProducts(_products);
@@ -526,11 +526,10 @@ export default Categories;
 
 export async function getServerSideProps() {
   db.connectDb();
-  let categories = await Category.find().populate('subCategories').sort({ createdAt: -1 }).lean();
+  let ctg = await Category.find({}).populate('subCategories').sort({ createdAt: -1 }).lean();
   return {
     props: {
-      categories: JSON.parse(JSON.stringify(categories)),
-      //country: { name: data.name, flag: data.flag.emojitwo },
+      ctg: JSON.parse(JSON.stringify(ctg)),
     },
   };
 }
