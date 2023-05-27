@@ -526,7 +526,7 @@ export default Categories;
 
 export async function getServerSideProps() {
   db.connectDb();
-  let ctg = await Category.find({}).populate('subCategories').sort({ createdAt: -1 }).lean();
+  let ctg = await Category.find({}).populate([{ path: 'subCategories', strictPopulate: false }]).sort({ createdAt: -1 }).lean();
   return {
     props: {
       ctg: JSON.parse(JSON.stringify(ctg)),

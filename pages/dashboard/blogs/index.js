@@ -19,7 +19,6 @@ import Blog from "../../../server/models/Blog";
 import { Avatar } from "primereact/avatar";
 
 const index = ({ blogs }) => {
-  console.log("blogs", blogs);
   let emptyProduct = {
     id: null,
     name: "",
@@ -142,10 +141,7 @@ const index = ({ blogs }) => {
     return id;
   };
 
-  const exportCSV = () => {
-    dt.current.exportCSV();
-  };
-
+ 
   const confirmDeleteSelected = () => {
     setDeleteProductsDialog(true);
   };
@@ -305,7 +301,6 @@ const index = ({ blogs }) => {
             <Toast ref={toast} />
             <Toolbar
               className="mb-4"
-              // left={leftToolbarTemplate}
               right={rightToolbarTemplate}
             ></Toolbar>
 
@@ -327,7 +322,7 @@ const index = ({ blogs }) => {
               responsiveLayout="scroll"
             >
               <Column
-                selectionMode="single"
+                selectionMode="multiple"
                 headerStyle={{ width: "4rem" }}
               />
 

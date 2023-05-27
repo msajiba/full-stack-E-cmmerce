@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const subSchema = new mongoose.Schema({
-
   name: {
     type: String,
     required: true,
@@ -12,8 +11,8 @@ const subSchema = new mongoose.Schema({
   },
   category: {
     type: ObjectId,
-    ref: "Category",
     required: true,
+    ref: "Category",
   },
 });
 

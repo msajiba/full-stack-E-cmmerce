@@ -41,29 +41,29 @@ handler.get(async (req, res) => {
   }
 });
 
-// handler.delete(async (req, res) => {
-//   try {
-//     const { id } = req.body;
+handler.delete(async (req, res) => {
+  try {
+    const { id } = req.body;
 
-//     const exist = await Category.findOne({ _id: id });
-//     if (exist) {
-//       db.connectDb();
-//       await Category.findByIdAndRemove(id);
-//       db.disconnectDb();
-//       return res.json({
-//         message: "Category has been deleted successfully",
-//         categories: await Category.find({}).sort({ updatedAt: -1 }),
-//       });
-//     } else {
-//       db.disconnectDb();
-//       return res.json({
-//         message: "Category Not Exist Please try to delete exist category",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
+    const exist = await User.findOne({ _id: id });
+    if (exist) {
+      db.connectDb();
+      await User.findByIdAndRemove(id);
+      db.disconnectDb();
+      return res.json({
+        message: "User has been deleted successfully",
+        Users: await User.find({}).sort({ updatedAt: -1 }),
+      });
+    } else {
+      db.disconnectDb();
+      return res.json({
+        message: "User Not Exist Please try to delete exist User",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // handler.put(async (req, res) => {
 //   try {

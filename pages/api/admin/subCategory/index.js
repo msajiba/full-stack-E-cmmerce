@@ -12,9 +12,10 @@ handler.post(async (req, res) => {
     db.connectDb();
     const test = await SubCategory.findOne({ name });
     if (test) {
-      return res
-        .status(400)
-        .json({ message: "SubCategory already exist, Try a different name" });
+      return res.json({
+        message: "SubCategory already exist, Try a different name",
+        status: false,
+      });
     }
 
     const sbCtg = await new SubCategory(req.body).save();
@@ -33,7 +34,8 @@ handler.post(async (req, res) => {
     db.disconnectDb();
 
     res.json({
-      message: `SubCategory ${name} has been created successfully.`,
+      message: `SubCategory ${name} has been created`,
+      status: true,
       categories: await SubCategory.find({}).sort({ updatedAt: -1 }),
     });
   } catch (error) {
@@ -54,19 +56,21 @@ handler.get(async (req, res) => {
 handler.delete(async (req, res) => {
   try {
     const { id } = req.body;
+    const exist = await SubCategory.findOne({ _id: id });
 
-    const exist = await Category.findOne({ _id: id });
     if (exist) {
       db.connectDb();
       await SubCategory.findByIdAndRemove(id);
       db.disconnectDb();
       return res.json({
-        message: "SubCategory has been deleted successfully",
+        message: "SubCategory has been deleted",
+        status: true,
         subCategory: await SubCategory.find({}).sort({ updatedAt: -1 }),
       });
     } else {
       db.disconnectDb();
       return res.json({
+        status: false,
         message: "SubCategory Not Exist Please try to delete exist subcategory",
       });
     }

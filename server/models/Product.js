@@ -43,7 +43,6 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-
     category: {
       type: ObjectId,
       required: true,
