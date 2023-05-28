@@ -14,7 +14,6 @@ const NewSubCategory = ({ categories }) => {
   const [submitted, setSubmitted] = useState(false);
   const toast = useRef(null);
 
-
   const openNew = () => {
     setSbCtgDialog(true);
   };
@@ -66,15 +65,14 @@ const NewSubCategory = ({ categories }) => {
   return (
     <>
       <Toast ref={toast} />
-      <div className="my-2">
-        <Button
-          label="Add New"
-          icon="pi pi-plus"
-          severity="sucess"
-          className="mr-2"
-          onClick={openNew}
-        />
-      </div>
+
+      <Button
+        label="Add New"
+        icon="pi pi-plus"
+        severity="sucess"
+        className="mr-2"
+        onClick={openNew}
+      />
 
       <Dialog
         visible={sbCtgDialog}
@@ -117,7 +115,7 @@ const NewSubCategory = ({ categories }) => {
                 options={categories}
                 optionLabel="name"
                 placeholder="Select a Category"
-                style={{position: 'fixed'}}
+                style={{ position: "fixed" }}
                 className={classNames({
                   "p-invalid": submitted && !name,
                 })}

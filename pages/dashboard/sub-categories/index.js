@@ -1,23 +1,19 @@
 /* eslint-disable */
-import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Toolbar } from "primereact/toolbar";
-import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import DashboardContainer from "../../../layout/DashboardContainer";
-// import SubCategory from "../../../server/models/SubCategory";
+import DashboardContainer from "../../../layout/DashboardContainer";;
 import db from "../../../config/db";
 import axios from "axios";
-import { Dropdown } from "primereact/dropdown";
 import DeleteSbCategory from "../../../components/dashboard/SubCategory/DeleteSbCategory";
 import EditSbCategory from "../../../components/dashboard/SubCategory/EditSbCategory";
 import NewSubCategory from "../../../components/dashboard/SubCategory/NewSubCategory";
 import Category from "../../../server/models/Category";
 import { useQuery } from "react-query";
 import Loader from "../../../components/Shared/Loader";
+import { Badge } from "primereact/badge";
 
 const SubCategories = ({ categories }) => {
   const [subCategories, setSubCategories] = useState(null);
@@ -78,7 +74,10 @@ const SubCategories = ({ categories }) => {
 
   const header = (
     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-      <h5 className="m-0">Manage Sub-Category</h5>
+      <h5 className="m-0">
+        Total :{" "}
+        <Badge className="ml-2" value={subCategories?.length} size="large" severity="success" />
+      </h5>
       <span className="block mt-2 md:mt-0 p-input-icon-left">
         <i className="pi pi-search" />
         <InputText
@@ -117,11 +116,6 @@ const SubCategories = ({ categories }) => {
               header={header}
               responsiveLayout="scroll"
             >
-              {/* <Column
-                selectionMode="multiple"
-                headerStyle={{ width: "4rem" }}
-              /> */}
-              
               <Column
                 field="code"
                 header="ID"
@@ -153,20 +147,6 @@ const SubCategories = ({ categories }) => {
                 headerStyle={{ minWidth: "10rem" }}
               />
             </DataTable>
-
-            {/*=============================== SUB_CATEGORY UPDATE SECTION START ================================  */}
-
-            {/* <EditSbCategory
-              productDialog={productDialog}
-              productDialogFooter={productDialogFooter}
-              hideDialog={hideDialog}
-              product={product}
-              submitted={submitted}
-              setSelectedCity={setSelectedCity}
-              selectedCity={selectedCity}
-            /> */}
-
-            {/*=============================== SUB_CATEGORY UPDATE SECTION END================================  */}
           </div>
         </div>
       </div>
@@ -179,7 +159,6 @@ export default SubCategories;
 export async function getServerSideProps() {
   db.connectDb();
   const ctg = await Category.find().sort({ createdAt: -1 }).lean();
-
   return {
     props: {
       categories: JSON.parse(JSON.stringify(ctg)),
