@@ -79,19 +79,16 @@ handler.delete(async (req, res) => {
   }
 });
 
-handler.put(async (req, res) => {
+handler.patch(async (req, res) => {
   try {
     const { id, name } = req.body;
+    console.log(req.body);
 
-    const exist = await Category.findOne({ _id: id });
+    const exist = await SubCategory.findOne({ _id: id });
     if (exist) {
       db.connectDb();
       await SubCategory.findByIdAndUpdate(id, { name });
-      db.disconnectDb();
-      return res.json({
-        message: "SubCategory has been updated successfully",
-        subCategory: await SubCategory.find({}).sort({ createdAt: -1 }),
-      });
+      res.json({ status: true, message: "Sub-Category update Successfully" });
     } else {
       db.disconnectDb();
       return res.json({

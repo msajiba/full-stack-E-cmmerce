@@ -14,6 +14,7 @@ const NewSubCategory = ({ categories }) => {
   const [submitted, setSubmitted] = useState(false);
   const toast = useRef(null);
 
+
   const openNew = () => {
     setSbCtgDialog(true);
   };

@@ -4,7 +4,7 @@ import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
 import React, { useRef, useState } from "react";
 
-const DeleteSbCategory = ({ rowData, setSubCategories }) => {
+const DeleteSbCategory = ({ rowData, refetch }) => {
   const [deleteSbCtgDialog, setDeleteSbCtgDialog] = useState(false);
   const [selectSbCtg, setSelectSbCtg] = useState(null);
   const toast = useRef(null);
@@ -17,19 +17,19 @@ const DeleteSbCategory = ({ rowData, setSubCategories }) => {
           data: { id: selectSbCtg._id },
         }
       );
-      if (data?.status) {
-        setSubCategories(data?.subCategory);
 
-        toast?.current?.show({
-          severity: "success",
-          summary: "Successful",
-          detail: `${data.message}`,
-          life: 3000,
-        });
-
+      if (data.status) {
+        refetch();
+        setDeleteSbCtgDialog(false);
         setDeleteSbCtgDialog(false);
       }
-      setDeleteSbCtgDialog(false);
+
+      await toast.current.show({
+        severity: "success",
+        summary: "Successful",
+        detail: "Sub Category Deleted Successfully",
+        life: 2000,
+      });
     } catch (error) {
       console.log(error);
     }

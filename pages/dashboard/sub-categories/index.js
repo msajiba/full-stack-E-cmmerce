@@ -8,7 +8,7 @@ import { Toolbar } from "primereact/toolbar";
 import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
 import DashboardContainer from "../../../layout/DashboardContainer";
-import SubCategory from "../../../server/models/SubCategory";
+// import SubCategory from "../../../server/models/SubCategory";
 import db from "../../../config/db";
 import axios from "axios";
 import { Dropdown } from "primereact/dropdown";
@@ -16,17 +16,28 @@ import DeleteSbCategory from "../../../components/dashboard/SubCategory/DeleteSb
 import EditSbCategory from "../../../components/dashboard/SubCategory/EditSbCategory";
 import NewSubCategory from "../../../components/dashboard/SubCategory/NewSubCategory";
 import Category from "../../../server/models/Category";
+import { useQuery } from "react-query";
+import Loader from "../../../components/Shared/Loader";
 
-const SubCategories = ({ sbCtg, categories }) => {
+const SubCategories = ({ categories }) => {
   const [subCategories, setSubCategories] = useState(null);
   const [selectedSbCtg, setSelectedSbCtg] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
 
   const dt = useRef(null);
 
+  const { isLoading, error, data, refetch } = useQuery(
+    "sbCtg",
+    async () =>
+      await axios.get(
+        "http://localhost:3000/api/admin/subCategory?populate='*'"
+      )
+  );
+
+  isLoading && <Loader />;
   useEffect(() => {
-    setSubCategories(sbCtg);
-  }, [sbCtg]);
+    setSubCategories(data?.data);
+  }, [data?.data]);
 
   const codeBodyTemplate = (rowData) => {
     return (
@@ -50,7 +61,7 @@ const SubCategories = ({ sbCtg, categories }) => {
     return (
       <>
         <span className="p-column-title">Category</span>
-        {rowData.category.name}
+        {rowData?.category?.name}
       </>
     );
   };
@@ -58,18 +69,9 @@ const SubCategories = ({ sbCtg, categories }) => {
   const actionBodyTemplate = (rowData) => {
     return (
       <>
-        <Button
-          icon="pi pi-pencil"
-          severity="success"
-          rounded
-          className="mr-2"
-          onClick={() => editSbCtg(rowData)}
-        />
+        <EditSbCategory rowData={rowData} categories={categories} />
         {/* ===========================================DELETE_SUB_CATEGORY_HANDLER ==================================== */}
-        <DeleteSbCategory
-          rowData={rowData}
-          setSubCategories={setSubCategories}
-        />
+        <DeleteSbCategory rowData={rowData} refetch={refetch} />
       </>
     );
   };
@@ -98,7 +100,6 @@ const SubCategories = ({ sbCtg, categories }) => {
               className="mb-4"
               right={<NewSubCategory categories={categories} />}
             />
-
             <DataTable
               ref={dt}
               value={subCategories}
@@ -116,10 +117,11 @@ const SubCategories = ({ sbCtg, categories }) => {
               header={header}
               responsiveLayout="scroll"
             >
-              <Column
+              {/* <Column
                 selectionMode="multiple"
                 headerStyle={{ width: "4rem" }}
-              />
+              /> */}
+              
               <Column
                 field="code"
                 header="ID"
@@ -176,15 +178,10 @@ export default SubCategories;
 
 export async function getServerSideProps() {
   db.connectDb();
-  const sb = await SubCategory.find()
-    .populate("category")
-    .sort({ createdAt: -1 })
-    .lean();
   const ctg = await Category.find().sort({ createdAt: -1 }).lean();
 
   return {
     props: {
-      sbCtg: JSON.parse(JSON.stringify(sb)),
       categories: JSON.parse(JSON.stringify(ctg)),
     },
   };
