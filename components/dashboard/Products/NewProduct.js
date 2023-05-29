@@ -80,7 +80,7 @@ const NewProduct = ({ refetch, categories }) => {
     } catch (error) {
       console.log(error);
     }
-    // refetch();
+    refetch();
   };
 
   const subCtgDialogFooter = (

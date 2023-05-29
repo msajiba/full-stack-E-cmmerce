@@ -16,6 +16,10 @@ import DeleteProduct from "../../../components/dashboard/Products/DeleteProduct"
 import { Badge } from "primereact/badge";
 import Category from "../../../server/models/Category";
 import Product from "../../../server/models/Product";
+import { useQuery } from "react-query";
+import axios from "axios";
+import Loader from "../../../components/Shared/Loader";
+import { Avatar } from "primereact/avatar";
 
 const index = ({ categories }) => {
   const [products, setProducts] = useState(null);
@@ -24,9 +28,20 @@ const index = ({ categories }) => {
   const toast = useRef(null);
   const dt = useRef(null);
 
+  const { isLoading, error, data, refetch } = useQuery(
+    "products",
+    async () =>
+      await axios.get("http://localhost:3000/api/admin/product?populate='*'")
+  );
+
+  isLoading && <Loader />;
+
   useEffect(() => {
-    ProductService.getProducts().then((data) => setProducts(data));
-  }, []);
+    setProducts(data?.data);
+    refetch();
+  }, [data?.data]);
+
+  error && console.log(error);
 
   const formatCurrency = (value) => {
     return value.toLocaleString("en-US", {
@@ -48,12 +63,7 @@ const index = ({ categories }) => {
     return (
       <>
         <span className="p-column-title">Image</span>
-        <img
-          src={`/demo/images/product/${rowData.image}`}
-          alt={rowData.image}
-          className="shadow-2"
-          width="100"
-        />
+        <Avatar image={`${rowData.image}`} size="xlarge" shape="circle" />
       </>
     );
   };
@@ -80,7 +90,7 @@ const index = ({ categories }) => {
     return (
       <>
         <span className="p-column-title">Reviews</span>
-        <Rating value={rowData.rating} readOnly cancel={false} />
+        {rowData.quantity}
       </>
     );
   };
@@ -89,11 +99,7 @@ const index = ({ categories }) => {
     return (
       <>
         <span className="p-column-title">Status</span>
-        <span
-          className={`product-badge status-${rowData.inventoryStatus.toLowerCase()}`}
-        >
-          {rowData.inventoryStatus}
-        </span>
+        {rowData.quantity > 0 ? <span> Abailable</span> : "not"}
       </>
     );
   };
@@ -137,7 +143,7 @@ const index = ({ categories }) => {
             <Toast ref={toast} />
             <Toolbar
               className="mb-4"
-              right={<NewProduct categories={categories} />}
+              right={<NewProduct refetch={refetch} categories={categories} />}
             />
             <DataTable
               ref={dt}
@@ -182,7 +188,7 @@ const index = ({ categories }) => {
               />
 
               <Column
-                field="rating"
+                field="quantity"
                 header="Quantity"
                 body={ratingBodyTemplate}
                 sortable
@@ -213,7 +219,10 @@ export default index;
 export async function getServerSideProps() {
   db.connectDb();
   let products = await Product.find().sort({ createdAt: -1 }).lean();
-  const categories = await Category.find({}).populate("subCategories").sort({ createdAt: -1 }).lean();
+  const categories = await Category.find({})
+    .populate("subCategories")
+    .sort({ createdAt: -1 })
+    .lean();
 
   return {
     props: {
