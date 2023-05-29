@@ -19,7 +19,7 @@ handler.post(async (req, res) => {
 
     db.disconnectDb();
     res.json({
-      message: `Product ${title} has been created`,
+      message: `Product ${name} has been created`,
       status: true,
       products: await Product.find({}).sort({ updatedAt: -1 }),
     });
