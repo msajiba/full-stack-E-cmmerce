@@ -23,16 +23,16 @@ const DeleteSbCategory = ({ rowData, refetch }) => {
         setDeleteSbCtgDialog(false);
         setDeleteSbCtgDialog(false);
       }
-
       await toast.current.show({
         severity: "success",
         summary: "Successful",
-        detail: "Sub Category Deleted Successfully",
+        detail: `${data.message}`,
         life: 2000,
       });
     } catch (error) {
       console.log(error);
     }
+    refetch();
   };
 
   const subCtgDialogFooter = (

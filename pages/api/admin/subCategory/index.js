@@ -82,16 +82,15 @@ handler.delete(async (req, res) => {
 handler.patch(async (req, res) => {
   try {
     const { id, name } = req.body;
-    console.log(req.body);
-
     const exist = await SubCategory.findOne({ _id: id });
     if (exist) {
       db.connectDb();
       await SubCategory.findByIdAndUpdate(id, { name });
-      res.json({ status: true, message: "Sub-Category update Successfully" });
+      res.json({ status: true, message: "Sub-Category update" });
     } else {
       db.disconnectDb();
       return res.json({
+        status: false,
         message: "SubCategory Not Exist Please try to update exist subcategory",
       });
     }

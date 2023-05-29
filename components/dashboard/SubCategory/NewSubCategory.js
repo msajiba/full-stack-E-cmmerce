@@ -7,7 +7,7 @@ import { Toast } from "primereact/toast";
 import { classNames } from "primereact/utils";
 import React, { useRef, useState } from "react";
 
-const NewSubCategory = ({ categories }) => {
+const NewSubCategory = ({ categories, refetch }) => {
   const [sbCtgDialog, setSbCtgDialog] = useState(false);
   const [name, setName] = useState("");
   const [selectCategory, setSelectCategory] = useState("");
@@ -48,6 +48,7 @@ const NewSubCategory = ({ categories }) => {
     } catch (error) {
       console.log(error);
     }
+    refetch();
   };
 
   const subCtgDialogFooter = (
@@ -77,7 +78,7 @@ const NewSubCategory = ({ categories }) => {
       <Dialog
         visible={sbCtgDialog}
         style={{ width: "500px" }}
-        header="Add New Product"
+        header="Add New Sub Category"
         modal
         className="p-fluid"
         footer={subCtgDialogFooter}

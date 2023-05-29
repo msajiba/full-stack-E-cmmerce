@@ -4,7 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
 import { Toolbar } from "primereact/toolbar";
 import React, { useEffect, useRef, useState } from "react";
-import DashboardContainer from "../../../layout/DashboardContainer";;
+import DashboardContainer from "../../../layout/DashboardContainer";
 import db from "../../../config/db";
 import axios from "axios";
 import DeleteSbCategory from "../../../components/dashboard/SubCategory/DeleteSbCategory";
@@ -16,6 +16,7 @@ import Loader from "../../../components/Shared/Loader";
 import { Badge } from "primereact/badge";
 
 const SubCategories = ({ categories }) => {
+
   const [subCategories, setSubCategories] = useState(null);
   const [selectedSbCtg, setSelectedSbCtg] = useState(null);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -31,8 +32,11 @@ const SubCategories = ({ categories }) => {
   );
 
   isLoading && <Loader />;
+  error && console.log(error);
+
   useEffect(() => {
     setSubCategories(data?.data);
+    refetch();
   }, [data?.data]);
 
   const codeBodyTemplate = (rowData) => {
@@ -65,7 +69,7 @@ const SubCategories = ({ categories }) => {
   const actionBodyTemplate = (rowData) => {
     return (
       <>
-        <EditSbCategory rowData={rowData} categories={categories} />
+        <EditSbCategory rowData={rowData} refetch={refetch} categories={categories} />
         {/* ===========================================DELETE_SUB_CATEGORY_HANDLER ==================================== */}
         <DeleteSbCategory rowData={rowData} refetch={refetch} />
       </>
@@ -75,8 +79,13 @@ const SubCategories = ({ categories }) => {
   const header = (
     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
       <h5 className="m-0">
-        Total :{" "}
-        <Badge className="ml-2" value={subCategories?.length} size="large" severity="success" />
+        SUB CATEGORY -
+        <Badge
+          className="ml-2"
+          value={subCategories?.length}
+          size="large"
+          severity="success"
+        />
       </h5>
       <span className="block mt-2 md:mt-0 p-input-icon-left">
         <i className="pi pi-search" />
@@ -97,7 +106,7 @@ const SubCategories = ({ categories }) => {
             {/* ADD NEW SUB CATEGORY  */}
             <Toolbar
               className="mb-4"
-              right={<NewSubCategory categories={categories} />}
+              right={<NewSubCategory categories={categories} refetch={refetch} />}
             />
             <DataTable
               ref={dt}

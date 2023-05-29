@@ -10,15 +10,17 @@ handler.post(async (req, res) => {
     db.connectDb();
     const test = await Category.findOne({ name });
     if (test) {
-      return res
-        .status(400)
-        .json({ message: "Category already exist, Try a different name" });
+      return res.json({
+        status: false,
+        message: "Category already exist, Try a different name",
+      });
     }
     await new Category({ name, image }).save();
 
     db.disconnectDb();
     res.json({
-      message: `Category ${name} has been created successfully.`,
+      message: `Category ${name} has been created`,
+      status: true,
       categories: await Category.find({}).sort({ updatedAt: -1 }),
     });
   } catch (error) {
@@ -39,19 +41,20 @@ handler.get(async (req, res) => {
 handler.delete(async (req, res) => {
   try {
     const { id } = req.body;
-
     const exist = await Category.findOne({ _id: id });
     if (exist) {
       db.connectDb();
       await Category.findByIdAndRemove(id);
       db.disconnectDb();
       return res.json({
-        message: "Category has been deleted successfully",
+        message: "Category has been deleted",
+        status: true,
         categories: await Category.find({}).sort({ updatedAt: -1 }),
       });
     } else {
       db.disconnectDb();
       return res.json({
+        status: false,
         message: "Category Not Exist Please try to delete exist category",
       });
     }
@@ -60,22 +63,25 @@ handler.delete(async (req, res) => {
   }
 });
 
-handler.put(async (req, res) => {
+handler.patch(async (req, res) => {
+
   try {
-    const { id, name } = req.body;
+    const { id, name, image } = req.body;
     db.connectDb();
 
     const exist = await Category.findOne({ _id: id });
     if (exist) {
-      await Category.findByIdAndUpdate(id, { name });
+      await Category.findByIdAndUpdate(id, { name, image });
       db.disconnectDb();
       return res.json({
-        message: "Category has been updated successfully",
+        message: "Category has been updated",
+        status: true,
         categories: await Category.find({}).sort({ createdAt: -1 }),
       });
     } else {
       db.disconnectDb();
       return res.json({
+        status: false,
         message: "Category Not Exist Please try to update exist category",
       });
     }

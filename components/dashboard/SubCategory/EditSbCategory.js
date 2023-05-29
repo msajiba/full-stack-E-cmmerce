@@ -7,7 +7,7 @@ import { Toast } from "primereact/toast";
 import { classNames } from "primereact/utils";
 import React, { useRef, useState } from "react";
 
-const EditSbCategory = ({ categories, rowData }) => {
+const EditSbCategory = ({ categories, rowData, refetch }) => {
   const [upSbCtgDialog, setUpSbCtgDialog] = useState(false);
   const [selectedID, setSelectedID] = useState(null);
   const [name, setName] = useState("");
@@ -53,6 +53,8 @@ const EditSbCategory = ({ categories, rowData }) => {
     } catch (error) {
       console.log(error);
     }
+
+    refetch();
   };
 
   const subCtgDialogFooter = (
