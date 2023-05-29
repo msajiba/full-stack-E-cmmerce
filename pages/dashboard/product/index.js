@@ -3,11 +3,9 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { InputText } from "primereact/inputtext";
-import { Rating } from "primereact/rating";
 import { Toast } from "primereact/toast";
 import { Toolbar } from "primereact/toolbar";
 import React, { useEffect, useRef, useState } from "react";
-import { ProductService } from "../../../demo/service/ProductService";
 import DashboardContainer from "../../../layout/DashboardContainer";
 import db from "../../../config/db";
 import NewProduct from "../../../components/dashboard/Products/NewProduct";
@@ -15,7 +13,6 @@ import EditProduct from "../../../components/dashboard/Products/EditProduct";
 import DeleteProduct from "../../../components/dashboard/Products/DeleteProduct";
 import { Badge } from "primereact/badge";
 import Category from "../../../server/models/Category";
-import Product from "../../../server/models/Product";
 import { useQuery } from "react-query";
 import axios from "axios";
 import Loader from "../../../components/Shared/Loader";
@@ -30,8 +27,7 @@ const index = ({ categories }) => {
 
   const { isLoading, error, data, refetch } = useQuery(
     "products",
-    async () =>
-      await axios.get("http://localhost:3000/api/admin/product?populate='*'")
+    async () => await axios.get("http://localhost:3000/api/admin/product")
   );
 
   isLoading && <Loader />;
@@ -50,20 +46,20 @@ const index = ({ categories }) => {
     });
   };
 
-  const nameBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Name</span>
-        {rowData.name}
-      </>
-    );
-  };
-
   const imageBodyTemplate = (rowData) => {
     return (
       <>
         <span className="p-column-title">Image</span>
         <Avatar image={`${rowData.image}`} size="xlarge" shape="circle" />
+      </>
+    );
+  };
+
+  const nameBodyTemplate = (rowData) => {
+    return (
+      <>
+        <span className="p-column-title">Name</span>
+        {rowData.name}
       </>
     );
   };
@@ -81,7 +77,7 @@ const index = ({ categories }) => {
     return (
       <>
         <span className="p-column-title">Category</span>
-        {rowData.category}
+        {rowData?.category?.name}
       </>
     );
   };
@@ -89,7 +85,7 @@ const index = ({ categories }) => {
   const ratingBodyTemplate = (rowData) => {
     return (
       <>
-        <span className="p-column-title">Reviews</span>
+        <span className="p-column-title">Quantity</span>
         {rowData.quantity}
       </>
     );
@@ -99,7 +95,23 @@ const index = ({ categories }) => {
     return (
       <>
         <span className="p-column-title">Status</span>
-        {rowData.quantity > 0 ? <span> Abailable</span> : "not"}
+        {rowData.quantity > 0 ? (
+          <Button
+            label="INSTOCK"
+            severity="success"
+            size="small"
+            raised
+            disabled
+          />
+        ) : (
+          <Button
+            label="OUTOFSTOK"
+            severity="warning"
+            size="small"
+            raised
+            disabled
+          />
+        )}
       </>
     );
   };
@@ -107,8 +119,8 @@ const index = ({ categories }) => {
   const actionBodyTemplate = (rowData) => {
     return (
       <>
-        <EditProduct rowData={rowData} />
-        <DeleteProduct rowData={rowData} />
+        <EditProduct rowData={rowData} refetch={refetch} />
+        <DeleteProduct rowData={rowData} refetch={refetch} />
       </>
     );
   };
@@ -180,11 +192,10 @@ const index = ({ categories }) => {
               />
 
               <Column
-                field="category"
+                field="Category"
                 header="Category"
-                sortable
                 body={categoryBodyTemplate}
-                headerStyle={{ minWidth: "10rem" }}
+                headerStyle={{ minWidth: "5rem" }}
               />
 
               <Column
@@ -192,17 +203,17 @@ const index = ({ categories }) => {
                 header="Quantity"
                 body={ratingBodyTemplate}
                 sortable
+                headerStyle={{ minWidth: "10rem" }}
               />
 
               <Column
-                field="inventoryStatus"
+                field="Status"
                 header="Status"
                 body={statusBodyTemplate}
-                sortable
-                headerStyle={{ minWidth: "10rem" }}
+                headerStyle={{ minWidth: "5rem" }}
               />
               <Column
-                header="Action"
+                header="ACTION"
                 body={actionBodyTemplate}
                 headerStyle={{ minWidth: "10rem" }}
               />
@@ -218,15 +229,14 @@ export default index;
 
 export async function getServerSideProps() {
   db.connectDb();
-  let products = await Product.find().sort({ createdAt: -1 }).lean();
-  const categories = await Category.find({})
+
+  const categories = await Category.find()
     .populate("subCategories")
     .sort({ createdAt: -1 })
     .lean();
 
   return {
     props: {
-      products: JSON.parse(JSON.stringify(products)),
       categories: JSON.parse(JSON.stringify(categories)),
     },
   };

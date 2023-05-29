@@ -7,6 +7,7 @@ const handler = nc();
 handler.post(async (req, res) => {
   try {
     const { name } = req.body;
+    console.log(req.body);
     db.connectDb();
     const test = await Product.findOne({ name });
     if (test) {
@@ -21,7 +22,7 @@ handler.post(async (req, res) => {
     res.json({
       message: `Product ${name} has been created`,
       status: true,
-      products: await Product.find({}).sort({ updatedAt: -1 }),
+      products: await Product.find().sort({ updatedAt: -1 }),
     });
   } catch (error) {
     db.disconnectDb();
@@ -31,7 +32,7 @@ handler.post(async (req, res) => {
 
 handler.get(async (req, res) => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find().populate("category");
     return res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -49,11 +50,13 @@ handler.delete(async (req, res) => {
       db.disconnectDb();
       return res.json({
         message: "Product has been deleted successfully",
+        status: true,
         categories: await Product.find({}).sort({ updatedAt: -1 }),
       });
     } else {
       db.disconnectDb();
       return res.json({
+        status: true,
         message: "Product Not Exist Please try to delete exist Product",
       });
     }

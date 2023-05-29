@@ -5,16 +5,16 @@ import { Toast } from "primereact/toast";
 import React, { useRef, useState } from "react";
 
 const DeleteProduct = ({ rowData, refetch }) => {
-  const [deleteCtgDialog, setDeleteCtgDialog] = useState(false);
-  const [selectCtg, setSelectCtg] = useState(null);
+  const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+  const [selectProduct, setSelectProduct] = useState(null);
   const toast = useRef(null);
 
-  const deleteHandleCtg = async () => {
+  const deleteHandleProduct = async () => {
     try {
       const { data } = await axios.delete(
-        `http://localhost:3000/api/admin/category`,
+        `http://localhost:3000/api/admin/product`,
         {
-          data: { id: selectCtg._id },
+          data: { id: selectProduct._id },
         }
       );
 
@@ -25,9 +25,8 @@ const DeleteProduct = ({ rowData, refetch }) => {
           detail: `${data.message}`,
           life: 2000,
         });
-
-        setDeleteCtgDialog(false);
-        setDeleteCtgDialog(false);
+        setDeleteProductDialog(false);
+        setDeleteProductDialog(false);
         refetch();
       }
     } catch (error) {
@@ -41,15 +40,20 @@ const DeleteProduct = ({ rowData, refetch }) => {
         label="Cancel"
         icon="pi pi-times"
         text
-        onClick={() => setDeleteCtgDialog(false)}
+        onClick={() => setDeleteProductDialog(false)}
       />
-      <Button label="Save" icon="pi pi-check" text onClick={deleteHandleCtg} />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        text
+        onClick={deleteHandleProduct}
+      />
     </>
   );
 
   const confirmDeleteCtg = (sbCtg) => {
-    setSelectCtg(sbCtg);
-    setDeleteCtgDialog(true);
+    setSelectProduct(sbCtg);
+    setDeleteProductDialog(true);
   };
 
   return (
@@ -57,21 +61,21 @@ const DeleteProduct = ({ rowData, refetch }) => {
       <Toast ref={toast} />
 
       <Dialog
-        visible={deleteCtgDialog}
+        visible={deleteProductDialog}
         style={{ width: "450px" }}
         header="Confirm"
         modal
         footer={ctgDialogFooter}
-        onHide={() => setDeleteCtgDialog(false)}
+        onHide={() => setDeleteProductDialog(false)}
       >
         <div className="flex align-items-center justify-content-center">
           <i
             className="pi pi-exclamation-triangle mr-3"
             style={{ fontSize: "2rem" }}
           />
-          {selectCtg && (
+          {selectProduct && (
             <span>
-              Are you sure you want to delete <b>{selectCtg?.name}</b>?
+              Are you sure you want to delete <b>{selectProduct?.name}</b>?
             </span>
           )}
         </div>
