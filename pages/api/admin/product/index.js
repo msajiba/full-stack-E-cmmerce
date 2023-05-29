@@ -6,19 +6,21 @@ const handler = nc();
 
 handler.post(async (req, res) => {
   try {
-    const { title } = req.body;
+    const { name } = req.body;
     db.connectDb();
-    const test = await Product.findOne({ title });
+    const test = await Product.findOne({ name });
     if (test) {
-      return res
-        .status(400)
-        .json({ message: "Product already exist, Try a different title" });
+      return res.json({
+        status: false,
+        message: "Product already exist, Try a different name",
+      });
     }
     await new Product(req.body).save();
 
     db.disconnectDb();
     res.json({
-      message: `Product ${title} has been created successfully.`,
+      message: `Product ${title} has been created`,
+      status: true,
       products: await Product.find({}).sort({ updatedAt: -1 }),
     });
   } catch (error) {

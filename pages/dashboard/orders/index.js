@@ -526,6 +526,7 @@ const Categories = () => {
                 </div>
               </div>
 
+
               <div className="formgrid grid">
                 <div className="field col">
                   <label htmlFor="price">Price</label>
@@ -547,7 +548,9 @@ const Categories = () => {
                     integeronly="true"
                   />
                 </div>
+                
               </div>
+
             </Dialog>
 
             <Dialog

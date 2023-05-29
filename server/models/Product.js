@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 const productSchema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
       minlength: [2, "must be atleast 2 charcters"],
@@ -19,13 +19,10 @@ const productSchema = new mongoose.Schema(
       minlength: [2, "must be atleast 2 charcters"],
       maxlength: [250, "must be atleast 2 charcters"],
     },
-    thumbnail: {
+    image: {
       type: String,
       required: true,
     },
-
-    image: [],
-
     price: {
       type: Number,
       required: true,
@@ -48,12 +45,10 @@ const productSchema = new mongoose.Schema(
       required: true,
       ref: "Category",
     },
-    subCategories: [
-      {
-        type: ObjectId,
-        ref: "SubCategory",
-      },
-    ],
+    subCategory: {
+      type: ObjectId,
+      ref: "SubCategory",
+    },
   },
 
   {

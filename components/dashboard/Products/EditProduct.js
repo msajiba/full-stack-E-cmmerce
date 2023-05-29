@@ -1,34 +1,38 @@
 import axios from "axios";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { classNames } from "primereact/utils";
 import React, { useRef, useState } from "react";
 
-const NewSubCategory = ({ categories, refetch }) => {
-  const [sbCtgDialog, setSbCtgDialog] = useState(false);
+const EditProduct = ({ rowData, refetch }) => {
+  const [ctgDialog, setCtgDialog] = useState(false);
   const [name, setName] = useState("");
-  const [selectCategory, setSelectCategory] = useState("");
+  const [image, setImage] = useState("");
+  const [selectedId, setSelectedID] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const toast = useRef(null);
 
-  const openNew = () => {
-    setSbCtgDialog(true);
+  const confirmDeleteCtg = (ctg) => {
+    setCtgDialog(true);
+    setName(ctg.name);
+    setImage(ctg.image);
+    setSelectedID(ctg?._id);
   };
 
-  const saveSubCtg = async () => {
+  const updateCtg = async () => {
     setSubmitted(true);
+
     try {
-      const { data } = await axios.post(
-        "http://localhost:3000/api/admin/subCategory",
+      const { data } = await axios.patch(
+        "http://localhost:3000/api/admin/category",
         {
           name,
-          category: selectCategory._id,
+          image,
+          id: selectedId,
         }
       );
-
       if (data.status === true) {
         toast.current.show({
           severity: "success",
@@ -36,7 +40,7 @@ const NewSubCategory = ({ categories, refetch }) => {
           detail: `${data.message}`,
           life: 3000,
         });
-        setSbCtgDialog(false);
+        setCtgDialog(false);
       } else {
         toast.current.show({
           severity: "error",
@@ -44,10 +48,12 @@ const NewSubCategory = ({ categories, refetch }) => {
           detail: `${data.message}`,
           life: 3000,
         });
+        setCtgDialog(false);
       }
     } catch (error) {
       console.log(error);
     }
+
     refetch();
   };
 
@@ -57,9 +63,9 @@ const NewSubCategory = ({ categories, refetch }) => {
         label="Cancel"
         icon="pi pi-times"
         text
-        onClick={() => setSbCtgDialog(false)}
+        onClick={() => setCtgDialog(false)}
       />
-      <Button label="Save" icon="pi pi-check" text onClick={saveSubCtg} />
+      <Button label="Save" icon="pi pi-check" text onClick={updateCtg} />
     </>
   );
 
@@ -68,22 +74,44 @@ const NewSubCategory = ({ categories, refetch }) => {
       <Toast ref={toast} />
 
       <Button
-        label="Add New"
-        icon="pi pi-plus"
-        severity="sucess"
+        icon="pi pi-pencil"
+        severity="success"
+        rounded
         className="mr-2"
-        onClick={openNew}
+        onClick={() => confirmDeleteCtg(rowData)}
       />
 
       <Dialog
-        visible={sbCtgDialog}
+        visible={ctgDialog}
         style={{ width: "500px" }}
-        header="Add New Sub Category"
+        header="Add New Product"
         modal
         className="p-fluid"
         footer={subCtgDialogFooter}
-        onHide={() => setSbCtgDialog(false)}
+        onHide={() => setCtgDialog(false)}
       >
+        <div className="field">
+          <label htmlFor="name">Image</label>
+          <InputText
+            id="image"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            required
+            autoFocus
+            className={classNames({
+              "p-invalid": submitted && !image,
+            })}
+          />
+          {submitted && !image && (
+            <small
+              style={{ fontSize: "1rem", color: "red" }}
+              className="p-invalid"
+            >
+              Image is required.
+            </small>
+          )}
+        </div>
+
         <div className="field">
           <label htmlFor="name">Name</label>
           <InputText
@@ -105,36 +133,9 @@ const NewSubCategory = ({ categories, refetch }) => {
             </small>
           )}
         </div>
-
-        <div className="field">
-          <label className="mb-3">Category</label>
-          <div className="formgrid grid">
-            <div className="fixed">
-              <Dropdown
-                value={selectCategory}
-                onChange={(e) => setSelectCategory(e.value)}
-                options={categories}
-                optionLabel="name"
-                placeholder="Select a Category"
-                style={{ position: "fixed" }}
-                className={classNames({
-                  "p-invalid": submitted && !selectCategory,
-                })}
-              />
-              {submitted && !selectCategory && (
-                <small
-                  style={{ fontSize: "1rem", color: "red" }}
-                  className="p-invalid text-danger"
-                >
-                  Category is required.
-                </small>
-              )}
-            </div>
-          </div>
-        </div>
       </Dialog>
     </>
   );
 };
 
-export default NewSubCategory;
+export default EditProduct;
