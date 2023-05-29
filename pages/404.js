@@ -1,12 +1,11 @@
 import React from 'react';
-import NotFound from '../pages/pages/notfound/index';
 
-const Custom404 = () => {
-    return <NotFound />;
+const NotFound = () => {
+    return (
+        <div>
+            <h3> Not Found...</h3>
+        </div>
+    );
 };
 
-Custom404.getLayout = function getLayout(page) {
-    return page;
-};
-
-export default Custom404;
+export default NotFound;

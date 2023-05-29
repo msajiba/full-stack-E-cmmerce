@@ -14,8 +14,14 @@ import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
 import { ProductService } from "../../../demo/service/ProductService";
 import DashboardContainer from "../../../layout/DashboardContainer";
+import db from "../../../config/db";
+// import Product from "../../../server/models/Product";
+
 
 const Product = () => {
+
+
+
   let emptyProduct = {
     id: null,
     name: "",
@@ -388,6 +394,7 @@ const Product = () => {
                 selectionMode="multiple"
                 headerStyle={{ width: "4rem" }}
               ></Column>
+              
               <Column
                 field="code"
                 header="Code"
@@ -599,3 +606,14 @@ const Product = () => {
 };
 
 export default Product;
+
+// export async function getServerSideProps() {
+//   db.connectDb();
+//   let products = await Product.find().sort({ createdAt: -1 }).lean();
+//   return {
+//     props: {
+//       products: JSON.parse(JSON.stringify(categories)),
+//       //country: { name: data.name, flag: data.flag.emojitwo },
+//     },
+//   };
+// }

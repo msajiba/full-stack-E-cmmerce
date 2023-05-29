@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
@@ -11,10 +12,13 @@ import { Toast } from "primereact/toast";
 import { Toolbar } from "primereact/toolbar";
 import { classNames } from "primereact/utils";
 import React, { useEffect, useRef, useState } from "react";
-import { ProductService } from "../../../demo/service/ProductService";
-import DashboardContainer from "../../../layout/DashboardContainer";
 
-const Blogs = () => {
+import DashboardContainer from "../../../layout/DashboardContainer";
+import db from "../../../config/db";
+import Blog from "../../../server/models/Blog";
+import { Avatar } from "primereact/avatar";
+
+const index = ({ blogs }) => {
   let emptyProduct = {
     id: null,
     name: "",
@@ -27,7 +31,7 @@ const Blogs = () => {
     inventoryStatus: "INSTOCK",
   };
 
-  const [products, setProducts] = useState(null);
+  const [products, setProducts] = useState(blogs);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
@@ -37,17 +41,6 @@ const Blogs = () => {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
-
-  useEffect(() => {
-    ProductService.getProducts().then((data) => setProducts(data));
-  }, []);
-
-  const formatCurrency = (value) => {
-    return value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-  };
 
   const openNew = () => {
     setProduct(emptyProduct);
@@ -148,10 +141,7 @@ const Blogs = () => {
     return id;
   };
 
-  const exportCSV = () => {
-    dt.current.exportCSV();
-  };
-
+ 
   const confirmDeleteSelected = () => {
     setDeleteProductsDialog(true);
   };
@@ -187,7 +177,6 @@ const Blogs = () => {
     const val = e.value || 0;
     let _product = { ...product };
     _product[`${name}`] = val;
-
     setProduct(_product);
   };
 
@@ -211,7 +200,7 @@ const Blogs = () => {
     return (
       <>
         <span className="p-column-title">Code</span>
-        {rowData.code}
+        {rowData._id}
       </>
     );
   };
@@ -229,55 +218,11 @@ const Blogs = () => {
     return (
       <>
         <span className="p-column-title">Image</span>
-        <img
-          src={`/demo/images/product/${rowData.image}`}
-          alt={rowData.image}
-          className="shadow-2"
-          width="100"
-        />
+        <Avatar image={`${rowData.image}`} size="xlarge" shape="circle" />
       </>
     );
   };
 
-  const priceBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Price</span>
-        {formatCurrency(rowData.price)}
-      </>
-    );
-  };
-
-  const categoryBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Category</span>
-        {rowData.category}
-      </>
-    );
-  };
-
-  const ratingBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Reviews</span>
-        <Rating value={rowData.rating} readOnly cancel={false} />
-      </>
-    );
-  };
-
-  const statusBodyTemplate = (rowData) => {
-    return (
-      <>
-        <span className="p-column-title">Status</span>
-        <span
-          className={`product-badge status-${rowData.inventoryStatus.toLowerCase()}`}
-        >
-          {rowData.inventoryStatus}
-        </span>
-      </>
-    );
-  };
 
   const actionBodyTemplate = (rowData) => {
     return (
@@ -298,6 +243,7 @@ const Blogs = () => {
       </>
     );
   };
+
 
   const header = (
     <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
@@ -355,7 +301,6 @@ const Blogs = () => {
             <Toast ref={toast} />
             <Toolbar
               className="mb-4"
-              // left={leftToolbarTemplate}
               right={rightToolbarTemplate}
             ></Toolbar>
 
@@ -379,52 +324,32 @@ const Blogs = () => {
               <Column
                 selectionMode="multiple"
                 headerStyle={{ width: "4rem" }}
-              ></Column>
+              />
+
               <Column
                 field="code"
-                header="Code"
+                header="ID"
                 sortable
                 body={codeBodyTemplate}
-                headerStyle={{ minWidth: "15rem" }}
-              ></Column>
+                headerStyle={{ minWidth: "5rem" }}
+              />
+
+              <Column header="Image" body={imageBodyTemplate} />
+
               <Column
                 field="title"
                 header="Title"
                 sortable
                 body={nameBodyTemplate}
                 headerStyle={{ minWidth: "15rem" }}
-              ></Column>
-              <Column header="Image" body={imageBodyTemplate}></Column>
+              />
+
               <Column
-                field="price"
-                header="Price"
-                body={priceBodyTemplate}
-                sortable
-              ></Column>
-              <Column
-                field="category"
-                header="Category"
-                sortable
-                body={categoryBodyTemplate}
-                headerStyle={{ minWidth: "10rem" }}
-              ></Column>
-              <Column
-                field="rating"
-                header="Reviews"
-                body={ratingBodyTemplate}
-                sortable
-              ></Column>
-              <Column
-                field="inventoryStatus"
-                header="Status"
-                body={statusBodyTemplate}
-                sortable
-                headerStyle={{ minWidth: "10rem" }}
-              ></Column>
-              <Column
+                field="Action"
+                header="Action"
                 body={actionBodyTemplate}
-                headerStyle={{ minWidth: "10rem" }}
-              ></Column>
+                headerStyle={{ minWidth: "15rem" }}
+              />
             </DataTable>
 
             <Dialog
@@ -590,4 +515,14 @@ const Blogs = () => {
   );
 };
 
-export default Blogs;
+export default index;
+
+export async function getServerSideProps() {
+  db.connectDb();
+  let blogs = await Blog.find().sort({ createdAt: -1 }).lean();
+  return {
+    props: {
+      blogs: JSON.parse(JSON.stringify(blogs)),
+    },
+  };
+}
