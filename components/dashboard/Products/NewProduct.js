@@ -26,11 +26,6 @@ const NewProduct = ({ refetch, categories }) => {
   const [submitted, setSubmitted] = useState(false);
   const toast = useRef(null);
 
-
-  const openNew = () => {
-    setProductDialog(true);
-  };
-
   useEffect(() => {
     setSelectedSub(category.subCategories);
   }, [category]);
@@ -56,8 +51,6 @@ const NewProduct = ({ refetch, categories }) => {
         createProduct
       );
 
-      console.log("data", data);
-
       if (data.status === true) {
         toast.current.show({
           severity: "success",
@@ -68,6 +61,14 @@ const NewProduct = ({ refetch, categories }) => {
         setProductDialog(false);
         setName("");
         setImage("");
+        setPrice(0);
+        setOriginal_Price(0);
+        setQuantity(0);
+        setCategory("");
+        setSubCategory("");
+        setDescription("");
+        setBestDeal(false);
+        setDiscountedSale(false);
       } else {
         toast.current.show({
           severity: "error",
@@ -103,7 +104,7 @@ const NewProduct = ({ refetch, categories }) => {
         icon="pi pi-plus"
         severity="sucess"
         className="mr-2"
-        onClick={openNew}
+        onClick={() => setProductDialog(true)}
       />
 
       <Dialog
